@@ -22,6 +22,8 @@ class ScheduledRelease(Model, UuidPrimaryKey):
 
 
 def schedule_release(release, datetime, commit=True):
+    if datetime.tzinfo is None:
+        raise Exception("datetime passed to schedule_release() must have tzinfo!")
     return ScheduledRelease(release=release, datetime=datetime).save(commit=commit)
 
 

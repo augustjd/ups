@@ -3,7 +3,7 @@ import datetime
 from flask_login import current_user
 from slugify import slugify
 from sqlalchemy import event, func
-from sqlalchemy_utils import URLType
+from sqlalchemy_utils import ArrowType, URLType
 
 import sqlalchemy.types as types
 from sqlalchemy.types import TypeDecorator
@@ -13,8 +13,6 @@ from ups.storage import StorageBucket, StorageCubby
 
 from distutils.version import LooseVersion
 from pathlib import Path
-
-from isodate import parse_datetime
 
 import pytz
 
@@ -116,38 +114,12 @@ def get_timezone(override=None):
 
 
 class TimezoneAwareDatetime(TypeDecorator):
-    impl = db.DateTime
-
-    def __init__(self, schema=None, *args, **kwargs):
-        kwargs['timezone'] = True
-        super().__init__(*args, **kwargs)
-
-    def process_bind_param(self, value, dialect):
-        if value is None:
-            return value
-
-        if type(value) is str:
-            value = parse_datetime(value)
-
-        if value.tzinfo is None:
-            value = get_timezone().localize(value)
-
-        return value
-
-    def process_result_value(self, value, dialect):
-        if value is not None and value.tzinfo is None:
-            value = pytz.utc.localize(value).astimezone(get_timezone())
-
-        return value
+    impl = ArrowType
 
     @classmethod
     def date_value(cls, value, tz=None):
         tz = get_timezone(tz)
-
-        if value.tzinfo is None:
-            value = pytz.utc.localize(value)
-
-        return value.astimezone(tz).date()
+        return value.to(tz).date()
 
     @classmethod
     def date(cls, column, tz=None):
@@ -164,7 +136,7 @@ class TimezoneAwareDatetime(TypeDecorator):
             datetime_at_tz = func.timezone(tzname, column)
             return func.DATE(datetime_at_tz)
 
-    class comparator_factory(db.DateTime.Comparator):
+    class comparator_factory(ArrowType.Comparator):
         def is_past(self):
             return self <= func.now()
 

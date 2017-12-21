@@ -2,7 +2,7 @@ import pytest
 
 from ups.models import Package, PackageVersion, PackageNamespace, Release
 
-import datetime
+import arrow
 
 
 class TestScheduledReleases:
@@ -40,7 +40,7 @@ class TestScheduledReleases:
     def test_schedule_release_updates_current(self, release):
         assert Release.current() is None
 
-        scheduled_release = release.schedule(datetime.datetime.now(), commit=True)
+        scheduled_release = release.schedule(arrow.utcnow().shift(minutes=-1), commit=True)
         assert scheduled_release is not None
         assert scheduled_release.release == release
 
@@ -49,8 +49,7 @@ class TestScheduledReleases:
     def test_schedule_release_in_future_does_not_update_current(self, release):
         assert Release.current() is None
 
-        scheduled_release = release.schedule(datetime.datetime.utcnow() +
-                                             datetime.timedelta(hours=1),
+        scheduled_release = release.schedule(arrow.utcnow().shift(hours=1),
                                              commit=True)
         assert scheduled_release is not None
         assert scheduled_release.release == release
