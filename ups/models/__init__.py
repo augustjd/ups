@@ -1,7 +1,8 @@
 from .user import User
-from .package import (Package, PackageNamespace,
-                      package_schema, packages_schema,
-                      package_namespace_schema, package_namespaces_schema)
+from .package import (Package,
+                      package_schema, packages_schema)
+from .package_namespace import (PackageNamespace,
+                                package_namespace_schema, package_namespaces_schema)
 from .package_version import (PackageVersion,
                               package_versions_schema, package_version_schema)
 from .release import Release, release_manifest_schema
