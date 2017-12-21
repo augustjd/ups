@@ -41,6 +41,7 @@ class TestConfig(DevConfig):
     #
     # SQLAlchemy
     #
+    SQLALCHEMY_DATABASE_URI = 'sqlite://'
     SQLALCHEMY_BINDS = {
         'users': 'sqlite://',
         'packages': 'sqlite://',
