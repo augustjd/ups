@@ -16,7 +16,7 @@ def route_get_release(id):
         release = Release.get(id)
 
     if release is None:
-        return ReleaseNotFoundErrorResponse(id)
+        raise ReleaseNotFoundErrorResponse(id)
 
     return release_manifest_schema.jsonify(release)
 
@@ -29,7 +29,7 @@ def route_schedule_release(id):
         release = Release.get(id)
 
     if release is None:
-        return ReleaseNotFoundErrorResponse(id)
+        raise ReleaseNotFoundErrorResponse(id)
 
     datetime = parse_datetime(request.get_json().get('datetime'))
 
