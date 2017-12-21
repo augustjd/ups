@@ -3,11 +3,13 @@ from flask import current_app, Response
 import json
 import jsonschema
 
+from .blueprint import blueprint
+
 
 RESPONSE_SCHEMA = json.load(open('./schemas/response.json'))
 
 
-class ErrorResponse(Response):
+class ErrorResponse(Exception):
     def __init__(self, errors=[], status=500):
         indent = None
         separators = (',', ':')
@@ -28,10 +30,16 @@ class ErrorResponse(Response):
 
         jsonschema.validate(RESPONSE_SCHEMA, response)
 
-        super().__init__(
-            response=json.dumps(response, indent=indent, separators=separators),
-            mimetype='application/json',
-            status=status)
+        self.response = Response(response=json.dumps(response,
+                                                     indent=indent,
+                                                     separators=separators),
+                                 mimetype='application/json',
+                                 status=status)
+
+
+@blueprint.errorhandler(ErrorResponse)
+def handle_error_response(error_response):
+    return error_response.response
 
 
 class JsonApiErrorResponse(ErrorResponse):

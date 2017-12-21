@@ -13,7 +13,7 @@ def route_get_all_versions(namespace_slug, package_slug):
     match = Package.lookup(namespace_slug, package_slug)
 
     if match is None:
-        return PackageNotFoundErrorResponse(namespace_slug, package_slug)
+        raise PackageNotFoundErrorResponse(namespace_slug, package_slug)
 
     return package_versions_schema.jsonify(match.versions.all(), many=True)
 
@@ -23,12 +23,12 @@ def route_get_version(namespace_slug, package_slug, version):
     package = Package.lookup(namespace_slug, package_slug)
 
     if package is None:
-        return PackageNotFoundErrorResponse(namespace_slug, package_slug)
+        raise PackageNotFoundErrorResponse(namespace_slug, package_slug)
 
     version = package.versions.filter_by(version=version).first()
 
     if version is None:
-        return VersionNotFoundErrorResponse(version, package_slug)
+        raise VersionNotFoundErrorResponse(version, package_slug)
 
     return package_version_schema.jsonify(version)
 
@@ -41,13 +41,13 @@ def route_create_version(namespace_slug, package_slug, version):
     package = Package.lookup(namespace_slug, package_slug)
 
     if package is None:
-        return PackageNotFoundErrorResponse(namespace_slug, package_slug)
+        raise PackageNotFoundErrorResponse(namespace_slug, package_slug)
 
     existing = package.versions.filter_by(version=version).first()
 
     if request.method == 'POST':
         if existing is not None:
-            return VersionAlreadyExistsErrorResponse(version, package_slug)
+            raise VersionAlreadyExistsErrorResponse(version, package_slug)
 
         if file is None or not file.filename.endswith('.zip'):
             detail = f"The package must be provided as a .zip file in the request."

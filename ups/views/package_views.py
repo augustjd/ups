@@ -16,7 +16,7 @@ def route_get_all_packages(namespace):
     match = PackageNamespace.get(namespace)
 
     if match is None:
-        return NamespaceNotFoundErrorResponse(namespace)
+        raise NamespaceNotFoundErrorResponse(namespace)
 
     return packages_schema.jsonify(match.packages, many=True)
 
@@ -26,7 +26,7 @@ def route_delete_namespace(namespace):
     match = PackageNamespace.get(namespace)
 
     if match is None:
-        return NamespaceNotFoundErrorResponse(namespace)
+        raise NamespaceNotFoundErrorResponse(namespace)
 
     match.delete(commit=True)
 
@@ -39,7 +39,7 @@ def route_create_namespace(namespace):
     existing = PackageNamespace.get(namespace_slug)
 
     if existing is not None:
-        return NamespaceAlreadyExistsErrorResponse(namespace)
+        raise NamespaceAlreadyExistsErrorResponse(namespace)
 
     namespace = PackageNamespace(name=namespace).save()
 
@@ -51,12 +51,12 @@ def route_create_package(namespace, package):
     match = PackageNamespace.get(namespace)
 
     if match is None:
-        return NamespaceNotFoundErrorResponse(namespace)
+        raise NamespaceNotFoundErrorResponse(namespace)
 
     existing = Package.get(namespace=match, name=package)
 
     if existing is not None:
-        return PackageAlreadyExistsErrorResponse(namespace, package)
+        raise PackageAlreadyExistsErrorResponse(namespace, package)
 
     package = Package(namespace=match, name=package).save()
 
@@ -68,7 +68,7 @@ def route_delete_package(namespace_slug, package_slug):
     match = Package.lookup(namespace_slug, package_slug)
 
     if match is None:
-        return PackageNotFoundErrorResponse(namespace_slug, package_slug)
+        raise PackageNotFoundErrorResponse(namespace_slug, package_slug)
 
     match.delete()
 
