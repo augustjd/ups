@@ -16,6 +16,8 @@ from pathlib import Path
 
 import pytz
 
+import arrow
+
 
 assert(URLType)
 
@@ -116,26 +118,6 @@ def get_timezone(override=None):
 class TimezoneAwareDatetime(TypeDecorator):
     impl = ArrowType
 
-    @classmethod
-    def date_value(cls, value, tz=None):
-        tz = get_timezone(tz)
-        return value.to(tz).date()
-
-    @classmethod
-    def date(cls, column, tz=None):
-        if type(column) is datetime.datetime:
-            return cls.date_value(column, tz=tz)
-
-        tz = get_timezone(tz)
-
-        if str(db.engine.url).startswith('sqlite'):
-            minutes_offset = round(tz.utcoffset(datetime.datetime.now()).total_seconds() / 60)
-            return func.date(column, f'{minutes_offset} minutes')
-        else:
-            tzname = tz.tzname(datetime.datetime.now())
-            datetime_at_tz = func.timezone(tzname, column)
-            return func.DATE(datetime_at_tz)
-
     class comparator_factory(ArrowType.Comparator):
         def is_past(self):
             return self <= func.now()
@@ -148,3 +130,14 @@ class TimezoneAwareDatetime(TypeDecorator):
 
         def most_recent_last(self):
             return self
+
+        def date(self, tz=None):
+            tz = get_timezone(tz)
+
+            if str(db.engine.url).startswith('sqlite'):
+                minutes_offset = round(tz.utcoffset(datetime.datetime.now()).total_seconds() / 60)
+                return func.date(self.expr, f'{minutes_offset} minutes')
+            else:
+                tzname = tz.tzname(datetime.datetime.now())
+                datetime_at_tz = func.timezone(tzname, self.expr)
+                return func.DATE(datetime_at_tz)
