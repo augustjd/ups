@@ -1,14 +1,10 @@
-from .utils import fail, success
+from .utils import success
 from .responses import (PackageNotFoundErrorResponse,
-                        NamespaceNotFoundErrorResponse,
-                        NamespaceAlreadyExistsErrorResponse,
-                        PackageAlreadyExistsErrorResponse)
+                        PackageAlreadyExistsErrorResponse,
+                        NamespaceNotFoundErrorResponse)
 from .blueprint import blueprint
 
-from ups.models import (Package, PackageNamespace, packages_schema,
-                        package_schema, package_namespace_schema)
-
-from slugify import slugify
+from ups.models import (Package, PackageNamespace, packages_schema, package_schema)
 
 
 @blueprint.route('/namespaces/<slug:namespace>/', methods=['GET'])
@@ -19,31 +15,6 @@ def route_get_all_packages(namespace):
         raise NamespaceNotFoundErrorResponse(namespace)
 
     return packages_schema.jsonify(match.packages, many=True)
-
-
-@blueprint.route('/namespaces/<slug:namespace>/', methods=['DELETE'])
-def route_delete_namespace(namespace):
-    match = PackageNamespace.get(namespace)
-
-    if match is None:
-        raise NamespaceNotFoundErrorResponse(namespace)
-
-    match.delete(commit=True)
-
-    return success()
-
-
-@blueprint.route('/namespaces/<namespace>/', methods=['POST'])
-def route_create_namespace(namespace):
-    namespace_slug = slugify(namespace)
-    existing = PackageNamespace.get(namespace_slug)
-
-    if existing is not None:
-        raise NamespaceAlreadyExistsErrorResponse(namespace)
-
-    namespace = PackageNamespace(name=namespace).save()
-
-    return package_namespace_schema.jsonify(namespace)
 
 
 @blueprint.route('/namespaces/<slug:namespace>/<package>/', methods=['POST'])
