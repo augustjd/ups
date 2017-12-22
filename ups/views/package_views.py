@@ -6,6 +6,8 @@ from .blueprint import blueprint
 
 from ups.models import (Package, PackageNamespace, packages_schema, package_schema)
 
+from slugify import slugify
+
 
 def get_namespace(namespace_slug):
     match = PackageNamespace.get(namespace_slug)
@@ -30,7 +32,8 @@ def route_create_package(namespace, package):
     existing = Package.get(namespace=match, name=package)
 
     if existing is not None:
-        raise PackageAlreadyExistsErrorResponse(namespace, package)
+        package_slug = slugify(package)
+        raise PackageAlreadyExistsErrorResponse(f'{namespace}/{package_slug}')
 
     package = Package(namespace=match, name=package).save()
 
@@ -39,10 +42,10 @@ def route_create_package(namespace, package):
 
 @blueprint.route('/namespaces/<slug:namespace_slug>/<slug:package_slug>/', methods=['DELETE'])
 def route_delete_package(namespace_slug, package_slug):
-    match = Package.lookup(namespace_slug, package_slug)
+    match = Package.lookup_path(namespace=namespace_slug, package=package_slug)
 
     if match is None:
-        raise PackageNotFoundErrorResponse(namespace_slug, package_slug)
+        raise PackageNotFoundErrorResponse(f'{namespace_slug}/{package_slug}')
 
     match.delete()
 

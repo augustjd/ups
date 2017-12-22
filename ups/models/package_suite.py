@@ -1,5 +1,6 @@
 from ups.database import Model, db, Column, reference_col, relationship
 
+from .package import packages_schema
 from .utils import SlugMixinFactory
 from ups.extensions import marshmallow as ma
 
@@ -18,7 +19,9 @@ class PackageSuite(Model,
 
 class PackageSuiteSchema(ma.Schema):
     class Meta:
-        fields = ("name", "slug")
+        fields = ("name", "slug", "packages")
+
+    packages = ma.Nested(packages_schema, many=True)
 
 
 package_suite_schema = PackageSuiteSchema()

@@ -9,7 +9,7 @@ class TestPackageRoutes:
 
         response = client.get(f"/api/v1/namespaces/{n.slug}/")
         assert response.status_code == 200
-        assert response.json[0] == {"name": p.name}
+        assert response.json[0] == {"name": p.name, "path": p.path}
 
     def test_get_all_packages_returns_404(self, app, client):
         response = client.get(f"/api/v1/namespaces/not-a-namespace/")

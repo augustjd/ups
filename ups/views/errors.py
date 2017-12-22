@@ -25,10 +25,15 @@ class ErrorResponse(Exception):
             error = errors
             error['status'] = status
             errors = [error]
+        elif type(errors) is list and all(isinstance(e, ErrorResponse) for e in
+                                          errors):
+            errors = [e.errors for e in errors]
 
         response = {"errors": errors}
 
         jsonschema.validate(RESPONSE_SCHEMA, response)
+
+        self.errors = errors
 
         self.response = Response(response=json.dumps(response,
                                                      indent=indent,

@@ -1,6 +1,7 @@
 from ups.database import Model, db, Column, reference_col, relationship, UuidPrimaryKey
 
 from sqlalchemy.schema import UniqueConstraint
+from sqlalchemy.ext.hybrid import hybrid_property
 
 from .package_namespace import PackageNamespace
 from .utils import SlugMixinFactory
@@ -20,6 +21,12 @@ class Package(Model, UuidPrimaryKey, SlugMixinFactory('name', nullable=False)):
                                                                   cascade='delete',
                                                                   lazy='dynamic'))
 
+    def __init__(self, **kwargs):
+        Model.__init__(self, **kwargs)
+
+        if 'namespace' in kwargs:
+            self.namespace_slug = kwargs['namespace'].slug
+
     __table_args__ = (
         UniqueConstraint('namespace_slug', 'slug', name='package_slug_is_unique_in_namespace'),
     )
@@ -31,10 +38,29 @@ class Package(Model, UuidPrimaryKey, SlugMixinFactory('name', nullable=False)):
                    .filter(PackageNamespace.slug == slugify(namespace))
                    .first())
 
+    @hybrid_property
+    def path(self):
+        return self.namespace_slug + "/" + self.slug
+
+    @classmethod
+    def lookup_path(cls, path):
+        return (cls.query
+                   .filter_by(path=path)
+                   .first())
+
+    @classmethod
+    def lookup_paths(cls, paths):
+        if paths == []:
+            return []
+
+        return (cls.query
+                   .filter(Package.path.in_(paths))
+                   .all())
+
 
 class PackageSchema(ma.Schema):
     class Meta:
-        fields = ("name",)
+        fields = ("name", "path")
 
 
 package_schema = PackageSchema()

@@ -109,3 +109,36 @@ class TestPackages:
         p.save()
 
         assert n.packages.all() == [p]
+
+    def test_package_path(self, app):
+        n = PackageNamespace(name='Hello')
+        p = Package(name='Dog Bog', namespace=n)
+
+        expected_path = 'hello/dog-bog'
+
+        assert p.path == expected_path
+        p.save()
+        assert p.path == expected_path
+
+    def test_lookup_path(self, app):
+        n = PackageNamespace(name='Hello')
+        p = Package(name='Dog Bog', namespace=n)
+        p.save()
+
+        expected_path = 'hello/dog-bog'
+
+        assert Package.lookup_path(expected_path) == p
+
+    def test_lookup_paths(self, app):
+        n = PackageNamespace(name='Hello')
+        p = Package(name='Dog Bog', namespace=n)
+        p.save()
+
+        n2 = PackageNamespace(name='Molten')
+        n2.save()
+        p2 = Package(name='Dog Bog', namespace=n2)
+        p2.save()
+
+        expected_path = 'hello/dog-bog'
+
+        assert Package.lookup_paths([expected_path]) == [p]
