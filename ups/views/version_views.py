@@ -8,6 +8,20 @@ from flask import request
 from ups.models import (Package, PackageVersion, package_versions_schema, package_version_schema)
 
 
+def get_version(namespace_slug, package_slug, version):
+    package = Package.lookup(namespace_slug, package_slug)
+
+    if package is None:
+        raise PackageNotFoundErrorResponse(namespace_slug, package_slug)
+
+    version = package.versions.filter_by(version=version).first()
+
+    if version is None:
+        raise VersionNotFoundErrorResponse(version, package_slug)
+
+    return version
+
+
 @blueprint.route('/namespaces/<slug:namespace_slug>/<slug:package_slug>/', methods=['GET'])
 def route_get_all_versions(namespace_slug, package_slug):
     match = Package.lookup(namespace_slug, package_slug)
@@ -20,30 +34,14 @@ def route_get_all_versions(namespace_slug, package_slug):
 
 @blueprint.route('/namespaces/<slug:namespace_slug>/<slug:package_slug>/<version:version>', methods=['GET'])
 def route_get_version(namespace_slug, package_slug, version):
-    package = Package.lookup(namespace_slug, package_slug)
-
-    if package is None:
-        raise PackageNotFoundErrorResponse(namespace_slug, package_slug)
-
-    version = package.versions.filter_by(version=version).first()
-
-    if version is None:
-        raise VersionNotFoundErrorResponse(version, package_slug)
+    version = get_version(namespace_slug, package_slug, version)
 
     return package_version_schema.jsonify(version)
 
 
 @blueprint.route('/namespaces/<slug:namespace_slug>/<slug:package_slug>/<version:version>', methods=['DELETE'])
 def route_delete_version(namespace_slug, package_slug, version):
-    package = Package.lookup(namespace_slug, package_slug)
-
-    if package is None:
-        raise PackageNotFoundErrorResponse(namespace_slug, package_slug)
-
-    version = package.versions.filter_by(version=version).first()
-
-    if version is None:
-        raise VersionNotFoundErrorResponse(version, package_slug)
+    version = get_version(namespace_slug, package_slug, version)
 
     version.cubby().delete()
     version.delete()
