@@ -14,7 +14,7 @@ class PackageNamespace(Model,
 
 class PackageNamespaceSchema(ma.Schema):
     class Meta:
-        fields = ("name",)
+        fields = ("name", "slug")
 
 
 package_namespace_schema = PackageNamespaceSchema()
