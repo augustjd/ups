@@ -2,7 +2,7 @@ import pytest
 
 import sqlalchemy.exc
 
-from ups.models import Package, PackageVersion, PackageNamespace, PackageSuite
+from ups.models import Package, PackageNamespace, PackageSuite
 
 
 class TestPackageSuites:
