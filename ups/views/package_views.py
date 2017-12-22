@@ -7,22 +7,25 @@ from .blueprint import blueprint
 from ups.models import (Package, PackageNamespace, packages_schema, package_schema)
 
 
-@blueprint.route('/namespaces/<slug:namespace>/', methods=['GET'])
-def route_get_all_packages(namespace):
-    match = PackageNamespace.get(namespace)
+def get_namespace(namespace_slug):
+    match = PackageNamespace.get(namespace_slug)
 
     if match is None:
-        raise NamespaceNotFoundErrorResponse(namespace)
+        raise NamespaceNotFoundErrorResponse(namespace_slug)
+
+    return match
+
+
+@blueprint.route('/namespaces/<slug:namespace>/', methods=['GET'])
+def route_get_all_packages(namespace):
+    match = get_namespace(namespace)
 
     return packages_schema.jsonify(match.packages, many=True)
 
 
 @blueprint.route('/namespaces/<slug:namespace>/<package>/', methods=['POST'])
 def route_create_package(namespace, package):
-    match = PackageNamespace.get(namespace)
-
-    if match is None:
-        raise NamespaceNotFoundErrorResponse(namespace)
+    match = get_namespace(namespace)
 
     existing = Package.get(namespace=match, name=package)
 
