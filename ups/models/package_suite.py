@@ -12,6 +12,9 @@ class PackageSuite(Model,
 
     name = Column(db.Unicode(255), nullable=False, unique=True)
 
+    packages = relationship('Package', secondary='suite_packages',
+                            backref=db.backref('suites'))
+
 
 class PackageSuiteSchema(ma.Schema):
     class Meta:
