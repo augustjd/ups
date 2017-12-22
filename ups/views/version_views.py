@@ -1,4 +1,4 @@
-from .utils import fail
+from .utils import success, fail
 from .blueprint import blueprint
 from .responses import (PackageNotFoundErrorResponse,
                         VersionNotFoundErrorResponse, VersionAlreadyExistsErrorResponse)
@@ -31,6 +31,24 @@ def route_get_version(namespace_slug, package_slug, version):
         raise VersionNotFoundErrorResponse(version, package_slug)
 
     return package_version_schema.jsonify(version)
+
+
+@blueprint.route('/namespaces/<slug:namespace_slug>/<slug:package_slug>/<version:version>', methods=['DELETE'])
+def route_delete_version(namespace_slug, package_slug, version):
+    package = Package.lookup(namespace_slug, package_slug)
+
+    if package is None:
+        raise PackageNotFoundErrorResponse(namespace_slug, package_slug)
+
+    version = package.versions.filter_by(version=version).first()
+
+    if version is None:
+        raise VersionNotFoundErrorResponse(version, package_slug)
+
+    version.cubby().delete()
+    version.delete()
+
+    return success()
 
 
 @blueprint.route('/namespaces/<slug:namespace_slug>/<slug:package_slug>/<version:version>',

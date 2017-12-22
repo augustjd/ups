@@ -150,3 +150,39 @@ class TestVersionRoutes:
         response = client.put(f"/api/v1/namespaces/{n.slug}/{p.slug}/{version}",
                               json={"version": "C:/bobo/"})
         assert response.status_code == 400
+
+    @mock_s3
+    def test_delete_single_version_200_with_no_s3_file(self, app, client):
+        n = PackageNamespace(name='Hello')
+        p = Package.create(name='Dog Bog', namespace=n)
+        v = PackageVersion.create(package=p, version='1.0.0',
+                                  local='C:/dog-bog')
+
+        response = client.delete(f"/api/v1/namespaces/{n.slug}/{p.slug}/{v.version}")
+        assert response.status_code == 200
+
+        assert PackageVersion.query.count() == 0
+
+    @mock_s3
+    def test_delete_single_version_200_deletes_s3_file(self, app, client, test_media_directory):
+        n = PackageNamespace(name='Hello')
+        p = Package.create(name='Dog Bog', namespace=n)
+
+        version = '1.0.0'
+
+        bytes1 = b'not a zip'
+        response = client.put(f"/api/v1/namespaces/{n.slug}/{p.slug}/{version}",
+                              data={"file": (BytesIO(bytes1), "workstation.zip")})
+
+        assert response.status_code == 200
+
+        v = PackageVersion.query.first()
+
+        assert v.cubby().exists() is True
+
+        response = client.delete(f"/api/v1/namespaces/{n.slug}/{p.slug}/{v.version}")
+        assert response.status_code == 200
+
+        assert PackageVersion.query.count() == 0
+
+        assert v.cubby().exists() is False
