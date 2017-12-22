@@ -18,6 +18,16 @@ def get_namespace(namespace_slug):
     return match
 
 
+def get_package(namespace_slug, package_slug):
+    path = f'{namespace_slug}/{package_slug}'
+    match = Package.lookup_path(path)
+
+    if match is None:
+        raise PackageNotFoundErrorResponse(path)
+
+    return match
+
+
 @blueprint.route('/namespaces/<slug:namespace>/', methods=['GET'])
 def route_get_all_packages(namespace):
     match = get_namespace(namespace)
@@ -42,10 +52,7 @@ def route_create_package(namespace, package):
 
 @blueprint.route('/namespaces/<slug:namespace_slug>/<slug:package_slug>/', methods=['DELETE'])
 def route_delete_package(namespace_slug, package_slug):
-    match = Package.lookup_path(namespace=namespace_slug, package=package_slug)
-
-    if match is None:
-        raise PackageNotFoundErrorResponse(f'{namespace_slug}/{package_slug}')
+    match = get_package(namespace_slug, package_slug)
 
     match.delete()
 
