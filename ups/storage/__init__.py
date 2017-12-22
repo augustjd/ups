@@ -72,7 +72,11 @@ class Storage(object):
         if self.default_bucket is None:
             raise Exception("'STORAGE_DEFAULT_BUCKET' is not set!")
 
-        return StorageBucket(f"{default_service}://{default_location}/{default_bucket}/")
+        service = self.default_service
+        location = self.default_location
+        bucket = self.default_bucket
+
+        return StorageBucket(f"{service}://{location}/{bucket}/")
 
     def store(self, request_file):
         cubby = self.default_bucket.cubby(request_file.name)

@@ -1,8 +1,6 @@
 from ups.database import Model, db, Column, relationship, reference_col, UuidPrimaryKey
 from ups.extensions import marshmallow as ma
 
-from sqlalchemy.orm.collections import collection
-
 from .package_version import PackageVersion, package_version_schema
 
 

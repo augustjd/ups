@@ -16,8 +16,6 @@ from pathlib import Path
 
 import pytz
 
-import arrow
-
 
 assert(URLType)
 
