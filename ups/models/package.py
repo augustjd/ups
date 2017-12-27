@@ -44,18 +44,14 @@ class Package(Model, UuidPrimaryKey, SlugMixinFactory('name', nullable=False)):
 
     @classmethod
     def lookup_path(cls, path):
-        return (cls.query
-                   .filter_by(path=path)
-                   .first())
+        return (cls.query.filter_by(path=path).first())
 
     @classmethod
     def lookup_paths(cls, paths):
-        if paths == []:
+        if len(paths) == 0:
             return []
 
-        return (cls.query
-                   .filter(Package.path.in_(paths))
-                   .all())
+        return cls.query.filter(Package.path.in_(paths)).all()
 
 
 class PackageSchema(ma.Schema):

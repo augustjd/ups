@@ -4,7 +4,8 @@ from .responses import (VersionNotFoundErrorResponse, VersionAlreadyExistsErrorR
 
 from flask import request
 
-from ups.models import (PackageVersion, package_versions_schema, package_version_schema)
+from ups.models import (PackageVersion, package_version_schema,
+                        package_with_versions_schema)
 
 from .package_views import get_package
 
@@ -21,10 +22,10 @@ def get_version(namespace_slug, package_slug, version):
 
 
 @blueprint.route('/namespaces/<slug:namespace_slug>/<slug:package_slug>/', methods=['GET'])
-def route_get_all_versions(namespace_slug, package_slug):
+def route_get_package(namespace_slug, package_slug):
     match = get_package(namespace_slug, package_slug)
-
-    return package_versions_schema.jsonify(match.versions.all(), many=True)
+    print(match.versions.all())
+    return package_with_versions_schema.jsonify(match)
 
 
 @blueprint.route('/namespaces/<slug:namespace_slug>/<slug:package_slug>/<version:version>',

@@ -16,16 +16,17 @@ class TestVersionRoutes:
 
         response = client.get(f"/api/v1/namespaces/{n.slug}/{p.slug}/")
         assert response.status_code == 200
-        assert response.json == []
+        assert response.json == {"name": p.name, "path": p.path, "versions": []}
 
         v = PackageVersion(package=p, version='1.0.0',
                            local='C:/dog-bog')
         v.save()
 
         response = client.get(f"/api/v1/namespaces/{n.slug}/{p.slug}/")
+        print(response.json)
         assert response.status_code == 200
-        assert response.json[0]['local'] == str(v.local)
-        assert response.json[0]['version'] == str(v.version)
+        assert response.json['versions'][0]['local'] == str(v.local)
+        assert response.json['versions'][0]['version'] == str(v.version)
 
     def test_get_single_package_when_package_does_not_exist_returns_404(self, app, client):
         response = client.get(f"/api/v1/namespaces/not-a-namespace/not-a-package/")
@@ -73,6 +74,8 @@ class TestVersionRoutes:
         bytes = b'not a zip!'
         response = client.post(f"/api/v1/namespaces/{n.slug}/{p.slug}/{version}",
                                data={"file": (BytesIO(bytes), "workstation.zip")})
+
+        print(response.json)
 
         assert response.status_code == 200
         assert response.json['remote'] is not None

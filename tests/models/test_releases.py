@@ -78,4 +78,7 @@ class TestPackages:
                           "test": version.test}]
         }
 
+        print(data)
+        print(expected)
+
         assert data == expected

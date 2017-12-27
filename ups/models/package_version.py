@@ -7,7 +7,7 @@ from sqlalchemy.orm import validates
 from .utils import (URLType, PathType, VersionType, StorageCubbyMixinFactory)
 from ups.extensions import marshmallow as ma
 
-from .package import Package
+from .package import Package, PackageSchema
 
 
 class PackageVersion(Model, UuidPrimaryKey, StorageCubbyMixinFactory(nullable=False)):
@@ -25,6 +25,10 @@ class PackageVersion(Model, UuidPrimaryKey, StorageCubbyMixinFactory(nullable=Fa
     package = relationship(Package, backref=db.backref('versions',
                                                        cascade='delete',
                                                        lazy='dynamic'))
+
+    package_eager = relationship(Package, backref=db.backref('versions_eager',
+                                                             cascade='delete',
+                                                             lazy='joined'))
 
     @validates('version')
     def version_readonly(self, key, value):
@@ -63,10 +67,21 @@ class PackageVersion(Model, UuidPrimaryKey, StorageCubbyMixinFactory(nullable=Fa
 
 class PackageVersionSchema(ma.Schema):
     class Meta:
-        fields = ("remote", "local", "version", "name", "run", "test")
+        fields = ("local", "version", "name", "run", "test", "remote")
 
     name = ma.Function(lambda version: version.package.name if version.package else None)
 
 
 package_version_schema = PackageVersionSchema()
 package_versions_schema = PackageVersionSchema(many=True)
+
+
+class PackageWithVersionsSchema(ma.Schema):
+    class Meta:
+        fields = PackageSchema.Meta.fields + ('versions_eager',)
+
+    versions_eager = ma.Nested(PackageVersionSchema, many=True,
+                               dump_to='versions')
+
+
+package_with_versions_schema = PackageWithVersionsSchema()

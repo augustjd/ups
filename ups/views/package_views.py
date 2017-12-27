@@ -4,7 +4,8 @@ from .responses import (PackageNotFoundErrorResponse,
                         NamespaceNotFoundErrorResponse)
 from .blueprint import blueprint
 
-from ups.models import (Package, PackageNamespace, packages_schema, package_schema)
+from ups.models import (Package, PackageNamespace, packages_schema,
+                        package_schema)
 
 from slugify import slugify
 
