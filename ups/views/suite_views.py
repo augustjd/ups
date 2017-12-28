@@ -37,7 +37,7 @@ def route_get_current_suite_manifest(suite):
     release = suite.current_release()
 
     if release is None:
-        return SuiteReleaseNotFoundErrorResponse(suite)
+        raise SuiteReleaseNotFoundErrorResponse(suite)
 
     return release_manifest_schema.jsonify(release)
 

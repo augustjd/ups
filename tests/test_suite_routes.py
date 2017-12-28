@@ -1,9 +1,16 @@
-from ups.models import Package, PackageVersion, Namespace, Suite, packages_schema
+import flask
+
+from ups.models import (Package, Namespace, Suite, packages_schema,
+                        package_versions_schema)
 
 from slugify import slugify
 
+from moto import mock_s3
 
-class TestSuiteRoutes:
+from tests.factories import Factories
+
+
+class TestSuiteRoutes(Factories):
     def test_get_single_suite(self, app, client):
         n = Namespace(name='Hello')
         p = Package(name='Dog Bog', namespace=n)
@@ -84,3 +91,20 @@ class TestSuiteRoutes:
 
         assert response.status_code == 200
         assert s.packages == []
+
+    def test_get_suite_current_version_starts_404(self, app, client, suite):
+        response = client.get(f"/api/v1/suites/{suite.slug}/current")
+
+        assert response.status_code == 404
+
+    @mock_s3
+    def test_get_suite_with_version_returns_manifest_200(self, app, client,
+                                                         suite, scheduled_suite_release):
+        response = client.get(f"/api/v1/suites/{suite.slug}/current")
+
+        assert suite.current_release() is not None
+        assert response.status_code == 200
+        assert len(response.json['packages']) == len(suite.packages)
+
+        expected = package_versions_schema.dump(suite.current_release().package_versions).data
+        self.assert_json_equal(response.json['packages'], expected)

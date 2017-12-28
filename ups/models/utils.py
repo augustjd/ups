@@ -36,6 +36,9 @@ def SlugMixinFactory(column, **kwargs):
         def __declare_last__(cls):
             event.listen(getattr(cls, column), 'set', cls.compute_slug, retval=False)
 
+    if kwargs.get('primary_key') is True:
+        SlugMixin.__primary_key__ = 'slug'
+
     return SlugMixin
 
 

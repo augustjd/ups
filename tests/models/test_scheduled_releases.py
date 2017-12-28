@@ -1,64 +1,25 @@
-import pytest
-
-from ups.models import Package, PackageVersion, Namespace, Release, Suite
+from tests.factories import Factories
 
 import arrow
 
 
-class TestScheduledReleases:
-    @pytest.fixture
-    def namespace(self, app):
-        return Namespace(name='Hello').save()
-
-    @pytest.fixture
-    def package(self, namespace, app):
-        package = Package(name='Dog Bog', namespace=namespace)
-        package.save()
-        return package
-
-    @pytest.fixture
-    def suite(self, namespace, package, app):
-        suite = Suite(name='Package Suite', packages=[package])
-        suite.save()
-        return suite
-
-    @pytest.fixture
-    def version(self, package, app):
-        version = PackageVersion(package=package, version='1.0.0', local='C:/dog-bog')
-        version.save()
-        return version
-
-    @pytest.fixture
-    def version_factory(self, package, app):
-        def fn(version='1.0.0'):
-            version = PackageVersion(package=package, version=version, local='C:/dog-bog')
-            version.save()
-            return version
-
-        return fn
-
-    @pytest.fixture
-    def release(self, suite, version, app):
-        release = Release(suite=suite).save()
-        release.set_versions([version], commit=True)
-        return release
-
-    def test_schedule_release_updates_current(self, suite, release):
+class TestScheduledReleases(Factories):
+    def test_schedule_release_updates_current(self, suite, suite_release):
         assert suite.current_release() is None
 
-        scheduled_release = release.schedule(arrow.utcnow().shift(minutes=-1), commit=True)
+        scheduled_release = suite_release.schedule(arrow.utcnow().shift(minutes=-1), commit=True)
         assert scheduled_release is not None
-        assert scheduled_release.release == release
+        assert scheduled_release.release == suite_release
 
-        assert suite.current_release() == release
+        assert suite.current_release() == suite_release
 
-    def test_schedule_release_in_future_does_not_update_current(self, suite, release):
+    def test_schedule_release_in_future_does_not_update_current(self, suite, suite_release):
         assert suite.current_release() is None
 
-        scheduled_release = release.schedule(arrow.utcnow().shift(hours=1),
-                                             commit=True)
+        scheduled_release = suite_release.schedule(arrow.utcnow().shift(hours=1),
+                                                   commit=True)
         assert scheduled_release is not None
-        assert scheduled_release.release == release
+        assert scheduled_release.release == suite_release
 
         current_release = suite.current_release()
         assert current_release is None  # won't not be None for 1 hr
