@@ -1,8 +1,8 @@
 from .user import User
 from .package import (Package,
                       package_schema, packages_schema)
-from .package_suite import (PackageSuite,
-                            package_suite_schema, package_suites_schema)
+from .suite import (Suite,
+                    suite_schema, suites_schema)
 from .namespace import (Namespace,
                         namespace_schema, namespaces_schema)
 from .package_version import (PackageVersion,
@@ -21,9 +21,9 @@ assert(package_schema)
 assert(namespace_schema)
 assert(namespaces_schema)
 
-assert(PackageSuite)
-assert(package_suite_schema)
-assert(package_suites_schema)
+assert(Suite)
+assert(suite_schema)
+assert(suites_schema)
 
 assert(PackageVersion)
 assert(package_versions_schema)

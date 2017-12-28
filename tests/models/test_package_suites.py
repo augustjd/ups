@@ -2,17 +2,17 @@ import pytest
 
 import sqlalchemy.exc
 
-from ups.models import Package, Namespace, PackageSuite
+from ups.models import Package, Namespace, Suite
 
 
-class TestPackageSuites:
+class TestSuites:
     def test_suites_have_packages(self, app):
         n1 = Namespace(name='Hello')
         p1 = Package(name='Dog Bog', namespace=n1)
 
         n2 = Namespace(name='Bello')
         p2 = Package(name='Trog Mog', namespace=n2)
-        s = PackageSuite(name='Everything', packages=[p1, p2])
+        s = Suite(name='Everything', packages=[p1, p2])
         s.save()
 
         assert s.packages == [p1, p2]
@@ -23,7 +23,7 @@ class TestPackageSuites:
         p1 = Package(name='Dog Bog', namespace=n1)
 
         with pytest.raises(sqlalchemy.exc.IntegrityError):
-            s = PackageSuite(name='Everything', packages=[p1, p1])
+            s = Suite(name='Everything', packages=[p1, p1])
             s.save()
 
     def test_packages_have_suites(self, app):
@@ -33,7 +33,7 @@ class TestPackageSuites:
 
         n2 = Namespace(name='Bello')
         p2 = Package(name='Trog Mog', namespace=n2)
-        s = PackageSuite(name='Everything', packages=[p1, p2])
+        s = Suite(name='Everything', packages=[p1, p2])
         s.save()
 
         assert p1.suites == [s]
@@ -45,7 +45,7 @@ class TestPackageSuites:
 
         n2 = Namespace(name='Bello')
         p2 = Package(name='Trog Mog', namespace=n2)
-        s = PackageSuite(name='Everything', packages=[p1])
+        s = Suite(name='Everything', packages=[p1])
         s.save()
 
         assert s.packages == [p1]
@@ -61,7 +61,7 @@ class TestPackageSuites:
 
         n2 = Namespace(name='Bello')
         p2 = Package(name='Trog Mog', namespace=n2)
-        s = PackageSuite(name='Everything', packages=[p1, p2])
+        s = Suite(name='Everything', packages=[p1, p2])
         s.save()
 
         packages = Package.query.filter(Package.suites.contains(s)).all()

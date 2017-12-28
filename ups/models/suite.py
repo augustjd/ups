@@ -5,11 +5,11 @@ from .utils import SlugMixinFactory
 from ups.extensions import marshmallow as ma
 
 
-class PackageSuite(Model,
-                   SlugMixinFactory('name', nullable=False, unique=True, primary_key=True)):
+class Suite(Model,
+            SlugMixinFactory('name', nullable=False, unique=True, primary_key=True)):
     """A group of packages."""
     __bind_key__ = 'packages'
-    __tablename__ = "package_suites"
+    __tablename__ = "suites"
 
     name = Column(db.Unicode(255), nullable=False, unique=True)
 
@@ -17,15 +17,15 @@ class PackageSuite(Model,
                             backref=db.backref('suites'))
 
 
-class PackageSuiteSchema(ma.Schema):
+class SuiteSchema(ma.Schema):
     class Meta:
         fields = ("name", "slug", "packages")
 
     packages = ma.Nested(packages_schema, many=True)
 
 
-package_suite_schema = PackageSuiteSchema()
-package_suites_schema = PackageSuiteSchema(many=True)
+suite_schema = SuiteSchema()
+suites_schema = SuiteSchema(many=True)
 
 
 class SuitePackage(Model):
@@ -33,9 +33,9 @@ class SuitePackage(Model):
     __tablename__ = "suite_packages"
 
     package_id = reference_col('packages', nullable=False)
-    suite_id = reference_col('package_suites', nullable=False, pk_name="slug")
+    suite_id = reference_col('suites', nullable=False, pk_name="slug")
 
-    suite = relationship('PackageSuite', uselist=False)
+    suite = relationship('Suite', uselist=False)
     package = relationship('Package', uselist=False)
 
     __table_args__ = (

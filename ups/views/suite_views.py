@@ -7,13 +7,13 @@ from .responses import (PackageNotFoundErrorResponse,
                         SuiteAlreadyExistsErrorResponse)
 from .utils import success, validate_request_json
 
-from ups.models import (Package, PackageSuite, package_suite_schema)
+from ups.models import (Package, Suite, suite_schema)
 
 from slugify import slugify
 
 
 def get_suite(suite_slug):
-    match = PackageSuite.get(suite_slug)
+    match = Suite.get(suite_slug)
 
     if match is None:
         raise SuiteNotFoundErrorResponse(suite_slug)
@@ -25,7 +25,7 @@ def get_suite(suite_slug):
 def route_get_suite(suite):
     match = get_suite(suite)
 
-    return package_suite_schema.jsonify(match)
+    return suite_schema.jsonify(match)
 
 
 @blueprint.route('/suites/<slug:suite>/', methods=['DELETE'])
@@ -40,14 +40,14 @@ def route_delete_suite(suite):
 @blueprint.route('/suites/<suite>/', methods=['POST'])
 def route_create_suite(suite):
     suite_slug = slugify(suite)
-    existing = PackageSuite.get(suite_slug)
+    existing = Suite.get(suite_slug)
 
     if existing is not None:
         raise SuiteAlreadyExistsErrorResponse(suite)
 
-    suite = PackageSuite(name=suite).save()
+    suite = Suite(name=suite).save()
 
-    return package_suite_schema.jsonify(suite)
+    return suite_schema.jsonify(suite)
 
 
 @blueprint.route('/suites/<slug:suite_slug>/packages', methods=['PUT'])
@@ -69,4 +69,4 @@ def route_update_suite_packages(suite_slug):
     suite.packages = packages
     suite.save()
 
-    return package_suite_schema.jsonify(suite)
+    return suite_schema.jsonify(suite)

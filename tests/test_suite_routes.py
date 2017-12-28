@@ -1,13 +1,13 @@
-from ups.models import Package, PackageVersion, Namespace, PackageSuite, packages_schema
+from ups.models import Package, PackageVersion, Namespace, Suite, packages_schema
 
 from slugify import slugify
 
 
-class TestPackageSuiteRoutes:
+class TestSuiteRoutes:
     def test_get_single_suite(self, app, client):
         n = Namespace(name='Hello')
         p = Package(name='Dog Bog', namespace=n)
-        s = PackageSuite(name="Suite", packages=[p])
+        s = Suite(name="Suite", packages=[p])
         s.save()
 
         response = client.get(f"/api/v1/suites/{s.slug}/")
@@ -23,7 +23,7 @@ class TestPackageSuiteRoutes:
         assert response.json['name'] == suite_name
 
     def test_update_suite_packages(self, app, client):
-        s = PackageSuite(name="Suite", packages=[])
+        s = Suite(name="Suite", packages=[])
         s.save()
 
         n = Namespace(name='Hello')
@@ -46,16 +46,16 @@ class TestPackageSuiteRoutes:
     def test_delete_suite(self, app, client):
         n = Namespace(name='Hello')
         p = Package(name='Dog Bog', namespace=n)
-        s = PackageSuite(name="Suite", packages=[p])
+        s = Suite(name="Suite", packages=[p])
         s.save()
 
         response = client.delete(f"/api/v1/suites/{s.slug}/")
         assert response.status_code == 200
 
-        assert PackageSuite.query.count() == 0
+        assert Suite.query.count() == 0
 
     def test_update_suite_packages_packages_must_exist(self, app, client):
-        s = PackageSuite(name="Suite", packages=[])
+        s = Suite(name="Suite", packages=[])
         s.save()
 
         n = Namespace(name='Hello')
@@ -75,7 +75,7 @@ class TestPackageSuiteRoutes:
     def test_update_suite_remove_packages(self, app, client):
         n = Namespace(name='Hello')
         p = Package(name='Dog Bog', namespace=n)
-        s = PackageSuite(name="Suite", packages=[p])
+        s = Suite(name="Suite", packages=[p])
         s.save()
 
         assert s.packages == [p]
