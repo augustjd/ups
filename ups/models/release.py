@@ -1,8 +1,6 @@
 from ups.database import Model, db, Column, relationship, reference_col, UuidPrimaryKey
 from ups.extensions import marshmallow as ma
 
-from sqlalchemy.orm.collections import collection
-
 from .package_version import PackageVersion, package_version_schema
 
 
@@ -47,6 +45,10 @@ class Release(Model, UuidPrimaryKey):
                                     secondary="releases_packages",
                                     backref='releases',
                                     viewonly=True)
+
+    suite_id = reference_col('suites', nullable=True, pk_name='slug')
+    suite = relationship('Suite', backref=db.backref('releases', lazy='dynamic'),
+                         uselist=False)
 
     def set_versions(self, versions=[], commit=False):
         self.release_packages = [ReleasePackage(release=self, package_version=v)

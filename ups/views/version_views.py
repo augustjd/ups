@@ -1,36 +1,50 @@
-from .utils import fail
+from .utils import success, fail
 from .blueprint import blueprint
-from .responses import (PackageNotFoundErrorResponse,
-                        VersionNotFoundErrorResponse, VersionAlreadyExistsErrorResponse)
+from .responses import (VersionNotFoundErrorResponse, VersionAlreadyExistsErrorResponse)
 
 from flask import request
 
-from ups.models import (Package, PackageVersion, package_versions_schema, package_version_schema)
+from ups.models import (PackageVersion, package_version_schema,
+                        package_with_versions_schema)
+
+from .package_views import get_package
 
 
-@blueprint.route('/namespaces/<slug:namespace_slug>/<slug:package_slug>/', methods=['GET'])
-def route_get_all_versions(namespace_slug, package_slug):
-    match = Package.lookup(namespace_slug, package_slug)
-
-    if match is None:
-        raise PackageNotFoundErrorResponse(namespace_slug, package_slug)
-
-    return package_versions_schema.jsonify(match.versions.all(), many=True)
-
-
-@blueprint.route('/namespaces/<slug:namespace_slug>/<slug:package_slug>/<version:version>', methods=['GET'])
-def route_get_version(namespace_slug, package_slug, version):
-    package = Package.lookup(namespace_slug, package_slug)
-
-    if package is None:
-        raise PackageNotFoundErrorResponse(namespace_slug, package_slug)
+def get_version(namespace_slug, package_slug, version):
+    package = get_package(namespace_slug, package_slug)
 
     version = package.versions.filter_by(version=version).first()
 
     if version is None:
         raise VersionNotFoundErrorResponse(version, package_slug)
 
+    return version
+
+
+@blueprint.route('/namespaces/<slug:namespace_slug>/<slug:package_slug>/', methods=['GET'])
+def route_get_package(namespace_slug, package_slug):
+    match = get_package(namespace_slug, package_slug)
+    print(match.versions.all())
+    return package_with_versions_schema.jsonify(match)
+
+
+@blueprint.route('/namespaces/<slug:namespace_slug>/<slug:package_slug>/<version:version>',
+                 methods=['GET'])
+def route_get_version(namespace_slug, package_slug, version):
+    version = get_version(namespace_slug, package_slug, version)
+
     return package_version_schema.jsonify(version)
+
+
+@blueprint.route('/namespaces/<slug:namespace_slug>/<slug:package_slug>/<version:version>',
+                 methods=['DELETE'])
+def route_delete_version(namespace_slug, package_slug, version):
+    version = get_version(namespace_slug, package_slug, version)
+
+    version.cubby().delete()
+    version.delete()
+
+    return success()
 
 
 @blueprint.route('/namespaces/<slug:namespace_slug>/<slug:package_slug>/<version:version>',
@@ -38,10 +52,7 @@ def route_get_version(namespace_slug, package_slug, version):
 def route_create_version(namespace_slug, package_slug, version):
     file = request.files.get('file')
 
-    package = Package.lookup(namespace_slug, package_slug)
-
-    if package is None:
-        raise PackageNotFoundErrorResponse(namespace_slug, package_slug)
+    package = get_package(namespace_slug, package_slug)
 
     existing = package.versions.filter_by(version=version).first()
 

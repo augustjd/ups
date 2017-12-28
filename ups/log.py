@@ -82,7 +82,7 @@ class ColoredFormatter(logging.Formatter):
         levelname = record.levelname
 
         if self.use_color and levelname in COLORS:
-            record.levelname = COLORS[levelname] + '[{: <7s}]'.format(levelname) + colorama.Fore.RESET
+            record.levelname = color(COLORS[levelname] + '[{: <7s}]'.format(levelname))
 
         return logging.Formatter.format(self, record)
 

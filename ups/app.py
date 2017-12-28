@@ -12,7 +12,7 @@ import decimal
 import pathlib
 
 from distutils.version import LooseVersion
-from isodate import datetime_isoformat, date_isoformat, parse_date, parse_datetime
+from isodate import datetime_isoformat, date_isoformat, parse_date
 from isodate.isoerror import ISO8601Error
 from slugify import slugify
 

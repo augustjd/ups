@@ -2,28 +2,24 @@ from .errors import (ModelNotFoundErrorResponse,
                      ModelAlreadyExistsErrorResponse,
                      JsonApiErrorResponse)
 
+from ups.models import Suite
+
 
 class PackageNotFoundErrorResponse(ModelNotFoundErrorResponse):
-    def __init__(self, namespace_slug, package_slug):
-        detail = f"No package with slug '{package_slug}' exists in '{namespace_slug}'."
+    def __init__(self, package_path):
+        detail = f"No package '{package_path}' exists."
         return super().__init__(model_name="Package", detail=detail)
 
 
 class VersionNotFoundErrorResponse(ModelNotFoundErrorResponse):
-    def __init__(self, version, package_slug):
-        detail = f"No version {version} exists for package '{package_slug}'."
+    def __init__(self, version, package_path):
+        detail = f"No version {version} exists for package '{package_path}'."
         return super().__init__(model_name="Version", detail=detail)
 
 
-class NamespaceNotFoundErrorResponse(ModelNotFoundErrorResponse):
-    def __init__(self, namespace_slug):
-        detail = f"No namespace with slug '{namespace_slug}' exists."
-        return super().__init__(model_name="Namespace", detail=detail)
-
-
 class PackageAlreadyExistsErrorResponse(ModelAlreadyExistsErrorResponse):
-    def __init__(self, namespace_slug, package_slug):
-        detail = f"A package named '{package_slug}' in namespace '{namespace_slug}' already exists."
+    def __init__(self, package_path):
+        detail = f"A package '{package_path}' already exists."
         return super().__init__(model_name="Package", detail=detail)
 
 
@@ -33,10 +29,37 @@ class VersionAlreadyExistsErrorResponse(ModelAlreadyExistsErrorResponse):
         return super().__init__(model_name="Version", detail=detail)
 
 
+class NamespaceNotFoundErrorResponse(ModelNotFoundErrorResponse):
+    def __init__(self, namespace_slug):
+        detail = f"No namespace with slug '{namespace_slug}' exists."
+        return super().__init__(model_name="Namespace", detail=detail)
+
+
 class NamespaceAlreadyExistsErrorResponse(ModelAlreadyExistsErrorResponse):
     def __init__(self, namespace_slug):
         detail = f"A namespace with slug '{namespace_slug}' already exists."
         return super().__init__(model_name="Namespace", detail=detail)
+
+
+class SuiteNotFoundErrorResponse(ModelNotFoundErrorResponse):
+    def __init__(self, suite_slug):
+        detail = f"No suite with slug '{suite_slug}' exists."
+        return super().__init__(model_name="Suite", detail=detail)
+
+
+class SuiteAlreadyExistsErrorResponse(ModelAlreadyExistsErrorResponse):
+    def __init__(self, suite_slug):
+        detail = f"A suite with slug '{suite_slug}' already exists."
+        return super().__init__(model_name="Suite", detail=detail)
+
+
+class SuiteReleaseNotFoundErrorResponse(ModelNotFoundErrorResponse):
+    def __init__(self, suite_slug):
+        if isinstance(suite_slug, Suite):
+            suite_slug = suite_slug.slug
+
+        detail = f"No release for suite with slug '{suite_slug}' exists."
+        return super().__init__(model_name="Suite", detail=detail)
 
 
 class ReleaseNotFoundErrorResponse(ModelNotFoundErrorResponse):

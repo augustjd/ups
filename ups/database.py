@@ -122,7 +122,7 @@ class Model(CRUDMixin, db.Model):
         return repr(self)
 
     def __repr__(self):
-        return self.repr(['id'])
+        return self.repr([self.__primary_key__])
 
     @classmethod
     def random(cls, n=1):
@@ -138,6 +138,8 @@ class UuidPrimaryKey(object):
 
     __table_args__ = {'extend_existing': True}
 
+    __primary_key__ = 'id'
+
     id = db.Column(UUIDType(binary=False), primary_key=True, default=uuid.uuid4)
 
     @classmethod
@@ -150,6 +152,8 @@ class IntPrimaryKey(object):
     to any declarative-mapped class."""
 
     __table_args__ = {'extend_existing': True}
+
+    __primary_key__ = 'id'
 
     id = db.Column(db.Integer, primary_key=True)
 
