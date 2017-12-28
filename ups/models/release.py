@@ -46,6 +46,10 @@ class Release(Model, UuidPrimaryKey):
                                     backref='releases',
                                     viewonly=True)
 
+    suite_id = reference_col('suites', nullable=True, pk_name='slug')
+    suite = relationship('Suite', backref=db.backref('releases', lazy='dynamic'),
+                         uselist=False)
+
     def set_versions(self, versions=[], commit=False):
         self.release_packages = [ReleasePackage(release=self, package_version=v)
                                  for v in versions]

@@ -4,10 +4,12 @@ from .blueprint import blueprint
 from .errors import (ErrorResponse)
 from .responses import (PackageNotFoundErrorResponse,
                         SuiteNotFoundErrorResponse,
-                        SuiteAlreadyExistsErrorResponse)
+                        SuiteAlreadyExistsErrorResponse,
+                        SuiteReleaseNotFoundErrorResponse)
 from .utils import success, validate_request_json
 
-from ups.models import (Package, Suite, suite_schema)
+from ups.models import (Package, Suite, suite_schema,
+                        release_manifest_schema)
 
 from slugify import slugify
 
@@ -26,6 +28,18 @@ def route_get_suite(suite):
     match = get_suite(suite)
 
     return suite_schema.jsonify(match)
+
+
+@blueprint.route('/suites/<slug:suite>/current', methods=['GET'])
+def route_get_current_suite_manifest(suite):
+    suite = get_suite(suite)
+
+    release = suite.current_release()
+
+    if release is None:
+        return SuiteReleaseNotFoundErrorResponse(suite)
+
+    return release_manifest_schema.jsonify(release)
 
 
 @blueprint.route('/suites/<slug:suite>/', methods=['DELETE'])

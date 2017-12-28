@@ -1,6 +1,6 @@
 import pytest
 
-from ups.models import Package, PackageVersion, Namespace, Release
+from ups.models import Package, PackageVersion, Namespace, Release, Suite
 
 import arrow
 
@@ -15,6 +15,12 @@ class TestScheduledReleases:
         package = Package(name='Dog Bog', namespace=namespace)
         package.save()
         return package
+
+    @pytest.fixture
+    def suite(self, namespace, package, app):
+        suite = Suite(name='Package Suite', packages=[package])
+        suite.save()
+        return suite
 
     @pytest.fixture
     def version(self, package, app):
@@ -32,27 +38,27 @@ class TestScheduledReleases:
         return fn
 
     @pytest.fixture
-    def release(self, version, app):
-        release = Release().save()
+    def release(self, suite, version, app):
+        release = Release(suite=suite).save()
         release.set_versions([version], commit=True)
         return release
 
-    def test_schedule_release_updates_current(self, release):
-        assert Release.current() is None
+    def test_schedule_release_updates_current(self, suite, release):
+        assert suite.current_release() is None
 
         scheduled_release = release.schedule(arrow.utcnow().shift(minutes=-1), commit=True)
         assert scheduled_release is not None
         assert scheduled_release.release == release
 
-        assert Release.current() == release
+        assert suite.current_release() == release
 
-    def test_schedule_release_in_future_does_not_update_current(self, release):
-        assert Release.current() is None
+    def test_schedule_release_in_future_does_not_update_current(self, suite, release):
+        assert suite.current_release() is None
 
         scheduled_release = release.schedule(arrow.utcnow().shift(hours=1),
                                              commit=True)
         assert scheduled_release is not None
         assert scheduled_release.release == release
 
-        current_release = Release.current()
+        current_release = suite.current_release()
         assert current_release is None  # won't not be None for 1 hr

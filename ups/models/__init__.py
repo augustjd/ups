@@ -9,7 +9,7 @@ from .package_version import (PackageVersion,
                               package_versions_schema, package_version_schema,
                               package_with_versions_schema)
 from .release import Release, release_manifest_schema
-from .scheduled_release import ScheduledRelease
+from .scheduled_release import ScheduledRelease, scheduled_release_manifest_schema
 
 
 assert(User)
@@ -34,3 +34,4 @@ assert(Release)
 assert(release_manifest_schema)
 
 assert(ScheduledRelease)
+assert(scheduled_release_manifest_schema)

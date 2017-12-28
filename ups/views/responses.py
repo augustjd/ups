@@ -2,6 +2,8 @@ from .errors import (ModelNotFoundErrorResponse,
                      ModelAlreadyExistsErrorResponse,
                      JsonApiErrorResponse)
 
+from ups.models import Suite
+
 
 class PackageNotFoundErrorResponse(ModelNotFoundErrorResponse):
     def __init__(self, package_path):
@@ -48,6 +50,15 @@ class SuiteNotFoundErrorResponse(ModelNotFoundErrorResponse):
 class SuiteAlreadyExistsErrorResponse(ModelAlreadyExistsErrorResponse):
     def __init__(self, suite_slug):
         detail = f"A suite with slug '{suite_slug}' already exists."
+        return super().__init__(model_name="Suite", detail=detail)
+
+
+class SuiteReleaseNotFoundErrorResponse(ModelNotFoundErrorResponse):
+    def __init__(self, suite_slug):
+        if isinstance(suite_slug, Suite):
+            suite_slug = suite_slug.slug
+
+        detail = f"No release for suite with slug '{suite_slug}' exists."
         return super().__init__(model_name="Suite", detail=detail)
 
 

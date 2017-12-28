@@ -4,6 +4,7 @@ from ups.extensions import marshmallow as ma
 from .utils import TimezoneAwareDatetime
 
 from .release import Release, release_manifest_schema
+from .suite import Suite
 
 
 class ScheduledRelease(Model, UuidPrimaryKey):
@@ -27,8 +28,8 @@ def schedule_release(release, datetime, commit=True):
     return ScheduledRelease(release=release, datetime=datetime).save(commit=commit)
 
 
-def current_release():
-    return (Release.query
+def suite_current_release(self):
+    return (self.releases
             .join(ScheduledRelease)
             .filter(ScheduledRelease.datetime.is_past())
             .order_by(ScheduledRelease.datetime.most_recent_first())
@@ -36,7 +37,7 @@ def current_release():
 
 
 Release.schedule = schedule_release
-Release.current = current_release
+Suite.current_release = suite_current_release
 
 
 class ScheduledReleaseManifestSchema(ma.Schema):
