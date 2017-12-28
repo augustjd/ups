@@ -2,7 +2,7 @@ from moto import mock_s3
 
 from io import BytesIO
 
-from ups.models import Package, PackageVersion, PackageNamespace
+from ups.models import Package, PackageVersion, Namespace
 
 from pathlib import PosixPath
 
@@ -10,7 +10,7 @@ from pathlib import PosixPath
 class TestVersionRoutes:
     @mock_s3
     def test_get_all_versions(self, app, client):
-        n = PackageNamespace(name='Hello')
+        n = Namespace(name='Hello')
         p = Package(name='Dog Bog', namespace=n)
         p.save()
 
@@ -42,7 +42,7 @@ class TestVersionRoutes:
         assert response.json['errors'][0]['title'] == "Package Not Found"
 
     def test_get_single_version_when_version_does_not_exist_returns_404(self, app, client):
-        n = PackageNamespace(name='Hello')
+        n = Namespace(name='Hello')
         p = Package(name='Dog Bog', namespace=n)
         p.save()
 
@@ -53,7 +53,7 @@ class TestVersionRoutes:
 
     @mock_s3
     def test_get_single_version_200(self, app, client):
-        n = PackageNamespace(name='Hello')
+        n = Namespace(name='Hello')
         p = Package.create(name='Dog Bog', namespace=n)
         v = PackageVersion.create(package=p, version='1.0.0',
                                   local='C:/dog-bog')
@@ -66,7 +66,7 @@ class TestVersionRoutes:
 
     @mock_s3
     def test_post_single_version_200(self, app, client, test_media_directory):
-        n = PackageNamespace(name='Hello')
+        n = Namespace(name='Hello')
         p = Package.create(name='Dog Bog', namespace=n)
 
         version = '1.0.0'
@@ -86,7 +86,7 @@ class TestVersionRoutes:
 
     @mock_s3
     def test_post_twice_fails(self, app, client, test_media_directory):
-        n = PackageNamespace(name='Hello')
+        n = Namespace(name='Hello')
         p = Package.create(name='Dog Bog', namespace=n)
 
         version = '1.0.0'
@@ -102,7 +102,7 @@ class TestVersionRoutes:
 
     @mock_s3
     def test_put_twice_updates_package_file(self, app, client, test_media_directory):
-        n = PackageNamespace(name='Hello')
+        n = Namespace(name='Hello')
         p = Package.create(name='Dog Bog', namespace=n)
 
         version = '1.0.0'
@@ -121,7 +121,7 @@ class TestVersionRoutes:
 
     @mock_s3
     def test_put_updates_package_version_data(self, app, client, test_media_directory):
-        n = PackageNamespace(name='Hello')
+        n = Namespace(name='Hello')
         p = Package.create(name='Dog Bog', namespace=n)
 
         version = '1.0.0'
@@ -140,7 +140,7 @@ class TestVersionRoutes:
 
     @mock_s3
     def test_put_cannot_update_package_version_version(self, app, client, test_media_directory):
-        n = PackageNamespace(name='Hello')
+        n = Namespace(name='Hello')
         p = Package.create(name='Dog Bog', namespace=n)
 
         version = '1.0.0'
@@ -156,7 +156,7 @@ class TestVersionRoutes:
 
     @mock_s3
     def test_delete_single_version_200_with_no_s3_file(self, app, client):
-        n = PackageNamespace(name='Hello')
+        n = Namespace(name='Hello')
         p = Package.create(name='Dog Bog', namespace=n)
         v = PackageVersion.create(package=p, version='1.0.0',
                                   local='C:/dog-bog')
@@ -168,7 +168,7 @@ class TestVersionRoutes:
 
     @mock_s3
     def test_delete_single_version_200_deletes_s3_file(self, app, client, test_media_directory):
-        n = PackageNamespace(name='Hello')
+        n = Namespace(name='Hello')
         p = Package.create(name='Dog Bog', namespace=n)
 
         version = '1.0.0'

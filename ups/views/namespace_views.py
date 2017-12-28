@@ -3,14 +3,14 @@ from .responses import (NamespaceNotFoundErrorResponse,
                         NamespaceAlreadyExistsErrorResponse)
 from .utils import success
 
-from ups.models import (PackageNamespace, package_namespace_schema)
+from ups.models import (Namespace, namespace_schema)
 
 from slugify import slugify
 
 
 @blueprint.route('/namespaces/<slug:namespace>/', methods=['DELETE'])
 def route_delete_namespace(namespace):
-    match = PackageNamespace.get(namespace)
+    match = Namespace.get(namespace)
 
     if match is None:
         raise NamespaceNotFoundErrorResponse(namespace)
@@ -23,11 +23,11 @@ def route_delete_namespace(namespace):
 @blueprint.route('/namespaces/<namespace>/', methods=['POST'])
 def route_create_namespace(namespace):
     namespace_slug = slugify(namespace)
-    existing = PackageNamespace.get(namespace_slug)
+    existing = Namespace.get(namespace_slug)
 
     if existing is not None:
         raise NamespaceAlreadyExistsErrorResponse(namespace)
 
-    namespace = PackageNamespace(name=namespace).save()
+    namespace = Namespace(name=namespace).save()
 
-    return package_namespace_schema.jsonify(namespace)
+    return namespace_schema.jsonify(namespace)

@@ -1,6 +1,6 @@
 import pytest
 
-from ups.models import Package, PackageVersion, PackageNamespace, Release
+from ups.models import Package, PackageVersion, Namespace, Release
 
 import arrow
 
@@ -8,7 +8,7 @@ import arrow
 class TestScheduledReleases:
     @pytest.fixture
     def namespace(self, app):
-        return PackageNamespace(name='Hello').save()
+        return Namespace(name='Hello').save()
 
     @pytest.fixture
     def package(self, namespace, app):

@@ -4,14 +4,14 @@ from .responses import (PackageNotFoundErrorResponse,
                         NamespaceNotFoundErrorResponse)
 from .blueprint import blueprint
 
-from ups.models import (Package, PackageNamespace, packages_schema,
+from ups.models import (Package, Namespace, packages_schema,
                         package_schema)
 
 from slugify import slugify
 
 
 def get_namespace(namespace_slug):
-    match = PackageNamespace.get(namespace_slug)
+    match = Namespace.get(namespace_slug)
 
     if match is None:
         raise NamespaceNotFoundErrorResponse(namespace_slug)

@@ -4,7 +4,7 @@ import sqlalchemy.exc
 
 import flask.json
 
-from ups.models import Package, PackageVersion, PackageNamespace, Release
+from ups.models import Package, PackageVersion, Namespace, Release
 from ups.models.release import ReleasePackage, release_manifest_schema
 
 from moto import mock_s3
@@ -13,7 +13,7 @@ from moto import mock_s3
 class TestPackages:
     @pytest.fixture
     def namespace(self):
-        return PackageNamespace(name='Hello').save()
+        return Namespace(name='Hello').save()
 
     @pytest.fixture
     def package(self, namespace):

@@ -3,7 +3,7 @@ from ups.database import Model, db, Column, reference_col, relationship, UuidPri
 from sqlalchemy.schema import UniqueConstraint
 from sqlalchemy.ext.hybrid import hybrid_property
 
-from .package_namespace import PackageNamespace
+from .namespace import Namespace
 from .utils import SlugMixinFactory
 from ups.extensions import marshmallow as ma
 
@@ -16,10 +16,10 @@ class Package(Model, UuidPrimaryKey, SlugMixinFactory('name', nullable=False)):
 
     name = Column(db.Unicode(255), nullable=False)
 
-    namespace_slug = reference_col('package_namespaces', pk_name='slug', nullable=False)
-    namespace = relationship(PackageNamespace, backref=db.backref("packages",
-                                                                  cascade='delete',
-                                                                  lazy='dynamic'))
+    namespace_slug = reference_col('namespaces', pk_name='slug', nullable=False)
+    namespace = relationship(Namespace, backref=db.backref("packages",
+                                                           cascade='delete',
+                                                           lazy='dynamic'))
 
     def __init__(self, **kwargs):
         Model.__init__(self, **kwargs)
@@ -35,7 +35,7 @@ class Package(Model, UuidPrimaryKey, SlugMixinFactory('name', nullable=False)):
     def lookup(cls, namespace, package):
         return (cls.query
                    .filter_by(slug=slugify(package))
-                   .filter(PackageNamespace.slug == slugify(namespace))
+                   .filter(Namespace.slug == slugify(namespace))
                    .first())
 
     @hybrid_property

@@ -1,11 +1,11 @@
-from ups.models import Package, PackageVersion, PackageNamespace, PackageSuite, packages_schema
+from ups.models import Package, PackageVersion, Namespace, PackageSuite, packages_schema
 
 from slugify import slugify
 
 
 class TestPackageSuiteRoutes:
     def test_get_single_suite(self, app, client):
-        n = PackageNamespace(name='Hello')
+        n = Namespace(name='Hello')
         p = Package(name='Dog Bog', namespace=n)
         s = PackageSuite(name="Suite", packages=[p])
         s.save()
@@ -26,7 +26,7 @@ class TestPackageSuiteRoutes:
         s = PackageSuite(name="Suite", packages=[])
         s.save()
 
-        n = PackageNamespace(name='Hello')
+        n = Namespace(name='Hello')
         p1 = Package(name='Dog Bog', namespace=n)
         p2 = Package(name='Mog', namespace=n)
         app.db.session.add(p1)
@@ -44,7 +44,7 @@ class TestPackageSuiteRoutes:
         assert set(s.packages) == set([p1, p2])
 
     def test_delete_suite(self, app, client):
-        n = PackageNamespace(name='Hello')
+        n = Namespace(name='Hello')
         p = Package(name='Dog Bog', namespace=n)
         s = PackageSuite(name="Suite", packages=[p])
         s.save()
@@ -58,7 +58,7 @@ class TestPackageSuiteRoutes:
         s = PackageSuite(name="Suite", packages=[])
         s.save()
 
-        n = PackageNamespace(name='Hello')
+        n = Namespace(name='Hello')
         p1 = Package(name='Dog Bog', namespace=n)
         p1.save()
 
@@ -73,7 +73,7 @@ class TestPackageSuiteRoutes:
         assert s.packages == [p1]
 
     def test_update_suite_remove_packages(self, app, client):
-        n = PackageNamespace(name='Hello')
+        n = Namespace(name='Hello')
         p = Package(name='Dog Bog', namespace=n)
         s = PackageSuite(name="Suite", packages=[p])
         s.save()
