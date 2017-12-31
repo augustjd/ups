@@ -21,7 +21,7 @@ class PackageVersion(Model, UuidPrimaryKey, StorageCubbyMixinFactory(nullable=Fa
     test = Column(db.String, nullable=True)
     url = Column(URLType, nullable=True)
 
-    package_id = reference_col("packages", nullable=False)
+    package_id = reference_col("packages", nullable=False, pk_name="slug")
     package = relationship(Package, backref=db.backref('versions',
                                                        cascade='delete',
                                                        lazy='dynamic'))

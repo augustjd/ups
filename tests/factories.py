@@ -2,22 +2,18 @@ import arrow
 import flask
 import pytest
 
-from ups.models import (Package, PackageVersion, Namespace, Release, Suite)
+from ups.models import (Package, PackageVersion, Release, Suite)
 
 
 class Factories:
     @pytest.fixture
-    def namespace(self, app):
-        return Namespace(name='Hello').save()
-
-    @pytest.fixture
-    def package(self, namespace, app):
-        package = Package(name='Dog Bog', namespace=namespace)
+    def package(self, app):
+        package = Package(name='Dog Bog')
         package.save()
         return package
 
     @pytest.fixture
-    def suite(self, namespace, package, app):
+    def suite(self, package, app):
         suite = Suite(name='Package Suite', packages=[package])
         suite.save()
         return suite

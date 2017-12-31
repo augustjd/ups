@@ -69,15 +69,15 @@ def route_create_suite(suite):
 def route_update_suite_packages(suite_slug):
     suite = get_suite(suite_slug)
 
-    paths = request.json
+    slugs = request.json
 
-    packages = Package.lookup_paths(paths)
+    packages = Package.lookup_slugs(slugs)
 
-    package_paths = [p.path for p in packages]
-    missing_paths = [path for path in paths if path not in package_paths]
+    package_slugs = [p.slug for p in packages]
+    missing_slugs = [slug for slug in slugs if slug not in package_slugs]
 
-    if missing_paths:
-        raise ErrorResponse(errors=[PackageNotFoundErrorResponse(path) for path in missing_paths],
+    if missing_slugs:
+        raise ErrorResponse(errors=[PackageNotFoundErrorResponse(slug) for slug in missing_slugs],
                             status=400)
 
     suite.packages = packages

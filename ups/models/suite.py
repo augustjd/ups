@@ -32,7 +32,7 @@ class SuitePackage(Model):
     __bind_key__ = 'packages'
     __tablename__ = "suite_packages"
 
-    package_id = reference_col('packages', nullable=False)
+    package_id = reference_col('packages', nullable=False, pk_name="slug")
     suite_id = reference_col('suites', nullable=False, pk_name="slug")
 
     suite = relationship('Suite', uselist=False)

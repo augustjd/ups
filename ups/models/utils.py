@@ -58,14 +58,28 @@ class PathType(types.TypeDecorator):
         return Path(value)
 
 
+class Version(LooseVersion):
+    def __hash__(self):
+        return hash(str(self))
+
+    def __eq__(self, r):
+        return isinstance(r, Version) and str(self) == str(r)
+
+
 class VersionType(types.TypeDecorator):
     impl = types.Unicode
 
     def process_bind_param(self, value, dialect):
+        if value is None:
+            return value
+
+        if (not isinstance(value, Version) and not isinstance(value, str)):
+            raise ValueError("VersionType expected Version or str!")
+
         return str(value)
 
     def process_result_value(self, value, dialect):
-        return LooseVersion(value)
+        return Version(value)
 
 
 def StorageBucketMixinFactory(nullable=False):

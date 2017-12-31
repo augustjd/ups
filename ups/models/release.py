@@ -8,9 +8,9 @@ class ReleasePackage(Model):
     __bind_key__ = 'packages'
     __tablename__ = "releases_packages"
 
-    package_id = reference_col('packages', nullable=True)
+    package_id = reference_col('packages', nullable=True, pk_name="slug")
     release_id = reference_col('releases', nullable=False)
-    package_version_id = reference_col('package_versions', nullable=False)
+    package_version_id = reference_col('package_versions', nullable=False, pk_name="version")
 
     release = relationship('Release', backref='release_packages', uselist=False)
     package = relationship('Package', backref='release_packages', uselist=False)

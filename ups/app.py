@@ -11,13 +11,13 @@ import uuid
 import decimal
 import pathlib
 
-from distutils.version import LooseVersion
 from isodate import datetime_isoformat, date_isoformat, parse_date
 from isodate.isoerror import ISO8601Error
 from slugify import slugify
 
 from .extensions import bcrypt, login_manager, migrate, marshmallow, storage
 from .log import log, bright, random_color, color
+from .models import Version
 from .settings import DevConfig, TestConfig
 from .database import db
 from .views import blueprint as views_blueprint
@@ -104,7 +104,7 @@ def configure_json(app):
                     return date_isoformat(obj)
                 elif isinstance(obj, pathlib.Path):
                     return str(obj)
-                elif isinstance(obj, LooseVersion):
+                elif isinstance(obj, Version):
                     return str(obj)
                 iterable = iter(obj)
             except TypeError:
@@ -144,10 +144,10 @@ def configure_converters(app):
         def to_url(self, value):
             return str(value)
 
-    class LooseVersionConverter(BaseConverter):
+    class VersionConverter(BaseConverter):
         def to_python(self, value):
             try:
-                return LooseVersion(value)
+                return Version(value)
             except ValueError:
                 raise ValidationError()
 
@@ -157,7 +157,7 @@ def configure_converters(app):
     app.url_map.converters['date'] = DateConverter
     app.url_map.converters['uuid'] = UUIDConverter
     app.url_map.converters['slug'] = SlugConverter
-    app.url_map.converters['version'] = LooseVersionConverter
+    app.url_map.converters['version'] = VersionConverter
 
 
 def register_extensions(app):

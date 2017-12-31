@@ -1,6 +1,4 @@
-import flask
-
-from ups.models import (Package, Namespace, Suite, packages_schema,
+from ups.models import (Package, Suite, packages_schema,
                         package_versions_schema)
 
 from slugify import slugify
@@ -12,8 +10,7 @@ from tests.factories import Factories
 
 class TestSuiteRoutes(Factories):
     def test_get_single_suite(self, app, client):
-        n = Namespace(name='Hello')
-        p = Package(name='Dog Bog', namespace=n)
+        p = Package(name='Dog Bog')
         s = Suite(name="Suite", packages=[p])
         s.save()
 
@@ -33,15 +30,13 @@ class TestSuiteRoutes(Factories):
         s = Suite(name="Suite", packages=[])
         s.save()
 
-        n = Namespace(name='Hello')
-        p1 = Package(name='Dog Bog', namespace=n)
-        p2 = Package(name='Mog', namespace=n)
+        p1 = Package(name='Dog Bog')
+        p2 = Package(name='Mog')
         app.db.session.add(p1)
         app.db.session.add(p2)
-        app.db.session.add(n)
         app.db.session.commit()
 
-        response = client.put(f"/api/v1/suites/{s.slug}/packages", json=["hello/dog-bog", "hello/mog"])
+        response = client.put(f"/api/v1/suites/{s.slug}/packages", json=["dog-bog", "mog"])
 
         assert response.status_code == 200
         assert response.json['packages'] == packages_schema.dump([p1, p2]).data
@@ -51,8 +46,7 @@ class TestSuiteRoutes(Factories):
         assert set(s.packages) == set([p1, p2])
 
     def test_delete_suite(self, app, client):
-        n = Namespace(name='Hello')
-        p = Package(name='Dog Bog', namespace=n)
+        p = Package(name='Dog Bog')
         s = Suite(name="Suite", packages=[p])
         s.save()
 
@@ -65,23 +59,21 @@ class TestSuiteRoutes(Factories):
         s = Suite(name="Suite", packages=[])
         s.save()
 
-        n = Namespace(name='Hello')
-        p1 = Package(name='Dog Bog', namespace=n)
+        p1 = Package(name='Dog Bog')
         p1.save()
 
-        response = client.put(f"/api/v1/suites/{s.slug}/packages", json=["hello/dog-bog", "hello/mog"])
+        response = client.put(f"/api/v1/suites/{s.slug}/packages", json=["dog-bog", "mog"])
 
         assert response.status_code == 400
         assert s.packages == []
 
-        response = client.put(f"/api/v1/suites/{s.slug}/packages", json=["hello/dog-bog"])
+        response = client.put(f"/api/v1/suites/{s.slug}/packages", json=["dog-bog"])
 
         assert response.status_code == 200
         assert s.packages == [p1]
 
     def test_update_suite_remove_packages(self, app, client):
-        n = Namespace(name='Hello')
-        p = Package(name='Dog Bog', namespace=n)
+        p = Package(name='Dog Bog')
         s = Suite(name="Suite", packages=[p])
         s.save()
 

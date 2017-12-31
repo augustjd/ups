@@ -4,14 +4,13 @@ from .responses import (VersionNotFoundErrorResponse, VersionAlreadyExistsErrorR
 
 from flask import request
 
-from ups.models import (PackageVersion, package_version_schema,
-                        package_with_versions_schema)
+from ups.models import (PackageVersion, package_version_schema)
 
 from .package_views import get_package
 
 
-def get_version(namespace_slug, package_slug, version):
-    package = get_package(namespace_slug, package_slug)
+def get_version(package_slug, version):
+    package = get_package(package_slug)
 
     version = package.versions.filter_by(version=version).first()
 
@@ -21,25 +20,16 @@ def get_version(namespace_slug, package_slug, version):
     return version
 
 
-@blueprint.route('/namespaces/<slug:namespace_slug>/<slug:package_slug>/', methods=['GET'])
-def route_get_package(namespace_slug, package_slug):
-    match = get_package(namespace_slug, package_slug)
-    print(match.versions.all())
-    return package_with_versions_schema.jsonify(match)
-
-
-@blueprint.route('/namespaces/<slug:namespace_slug>/<slug:package_slug>/<version:version>',
-                 methods=['GET'])
-def route_get_version(namespace_slug, package_slug, version):
-    version = get_version(namespace_slug, package_slug, version)
+@blueprint.route('/packages/<slug:package_slug>/<version:version>', methods=['GET'])
+def route_get_version(package_slug, version):
+    version = get_version(package_slug, version)
 
     return package_version_schema.jsonify(version)
 
 
-@blueprint.route('/namespaces/<slug:namespace_slug>/<slug:package_slug>/<version:version>',
-                 methods=['DELETE'])
-def route_delete_version(namespace_slug, package_slug, version):
-    version = get_version(namespace_slug, package_slug, version)
+@blueprint.route('/packages/<slug:package_slug>/<version:version>', methods=['DELETE'])
+def route_delete_version(package_slug, version):
+    version = get_version(package_slug, version)
 
     version.cubby().delete()
     version.delete()
@@ -47,12 +37,11 @@ def route_delete_version(namespace_slug, package_slug, version):
     return success()
 
 
-@blueprint.route('/namespaces/<slug:namespace_slug>/<slug:package_slug>/<version:version>',
-                 methods=['POST', 'PUT'])
-def route_create_version(namespace_slug, package_slug, version):
+@blueprint.route('/packages/<slug:package_slug>/<version:version>', methods=['POST', 'PUT'])
+def route_create_version(package_slug, version):
     file = request.files.get('file')
 
-    package = get_package(namespace_slug, package_slug)
+    package = get_package(package_slug)
 
     existing = package.versions.filter_by(version=version).first()
 
