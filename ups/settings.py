@@ -25,10 +25,9 @@ class DevConfig(Config):
     #
     # SQLAlchemy
     #
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///../dev.db'
     SQLALCHEMY_BINDS = {
-        'users': 'users.dev.db',
-        'packages': 'packages.dev.db',
+        'users': 'sqlite:///users.dev.db',
+        'packages': 'sqlite:///packages.dev.db',
     }
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 

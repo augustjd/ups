@@ -3,7 +3,7 @@ from .responses import (NamespaceNotFoundErrorResponse,
                         NamespaceAlreadyExistsErrorResponse)
 from .utils import success
 
-from ups.models import (Namespace, namespace_schema)
+from ups.models import (Namespace, namespace_schema, namespaces_schema)
 
 from slugify import slugify
 
@@ -31,3 +31,10 @@ def route_create_namespace(namespace):
     namespace = Namespace(name=namespace).save()
 
     return namespace_schema.jsonify(namespace)
+
+
+@blueprint.route('/namespaces/', methods=['GET'])
+def route_get_all_namespaces():
+    existing = Namespace.all()
+
+    return namespaces_schema.jsonify(existing)

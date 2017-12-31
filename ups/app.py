@@ -77,7 +77,7 @@ def configure_log(app):
 def configure_database(app):
     db.init_app(app)
 
-    if app.config['TESTING']:
+    if app.config['TESTING'] or app.config['DEBUG']:
         with app.app_context():
             db.create_all()
 
