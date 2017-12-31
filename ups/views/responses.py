@@ -29,18 +29,6 @@ class VersionAlreadyExistsErrorResponse(ModelAlreadyExistsErrorResponse):
         return super().__init__(model_name="Version", detail=detail)
 
 
-class NamespaceNotFoundErrorResponse(ModelNotFoundErrorResponse):
-    def __init__(self, namespace_slug):
-        detail = f"No namespace with slug '{namespace_slug}' exists."
-        return super().__init__(model_name="Namespace", detail=detail)
-
-
-class NamespaceAlreadyExistsErrorResponse(ModelAlreadyExistsErrorResponse):
-    def __init__(self, namespace_slug):
-        detail = f"A namespace with slug '{namespace_slug}' already exists."
-        return super().__init__(model_name="Namespace", detail=detail)
-
-
 class SuiteNotFoundErrorResponse(ModelNotFoundErrorResponse):
     def __init__(self, suite_slug):
         detail = f"No suite with slug '{suite_slug}' exists."
