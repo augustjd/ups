@@ -5,7 +5,8 @@ from .suite import (Suite,
                     suite_schema, suites_schema)
 from .package_version import (PackageVersion,
                               package_versions_schema, package_version_schema,
-                              package_with_versions_schema)
+                              package_with_versions_schema,
+                              packages_with_versions_schema)
 from .release import Release, release_manifest_schema
 from .scheduled_release import ScheduledRelease, scheduled_release_manifest_schema
 from .utils import Version
@@ -25,6 +26,7 @@ assert(PackageVersion)
 assert(package_versions_schema)
 assert(package_version_schema)
 assert(package_with_versions_schema)
+assert(packages_with_versions_schema)
 
 assert(Release)
 assert(release_manifest_schema)

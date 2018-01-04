@@ -104,6 +104,9 @@ def StorageCubbyMixinFactory(nullable=False):
 
         def cubby(self):
             if None in (self.service, self.location, self.bucket, self.key):
+                expected = f"{self.service}://{self.location}/{self.bucket}/{self.key}"
+                print(f"No cubby: {expected}")
+                print(f"Location: {self.location}")
                 return None
 
             return StorageCubby(f"{self.service}://{self.location}/{self.bucket}/{self.key}",

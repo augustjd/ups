@@ -3,7 +3,9 @@ from .responses import (PackageNotFoundErrorResponse,
                         PackageAlreadyExistsErrorResponse)
 from .blueprint import blueprint
 
-from ups.models import (Package, package_schema, packages_schema, package_with_versions_schema)
+from ups.models import (Package, package_schema,
+                        package_with_versions_schema,
+                        packages_with_versions_schema)
 
 from slugify import slugify
 
@@ -31,8 +33,8 @@ def route_create_package(name):
 
 
 @blueprint.route('/packages/', methods=['GET'])
-def route_list_packages(name):
-    return packages_schema.jsonify(Package.all(), many=True)
+def route_list_packages():
+    return packages_with_versions_schema.jsonify(Package.all(), many=True)
 
 
 @blueprint.route('/packages/<name>', methods=['GET'])

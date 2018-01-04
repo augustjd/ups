@@ -1,6 +1,10 @@
+import json
+
 from .utils import success, fail
 from .blueprint import blueprint
-from .responses import (VersionNotFoundErrorResponse, VersionAlreadyExistsErrorResponse)
+from .responses import (VersionNotFoundErrorResponse,
+                        VersionAlreadyExistsErrorResponse,
+                        InvalidArgumentResponse)
 
 from flask import request
 
@@ -37,7 +41,7 @@ def route_delete_version(package_slug, version):
     return success()
 
 
-@blueprint.route('/packages/<slug:package_slug>/<version:version>', methods=['POST', 'PUT'])
+@blueprint.route('/packages/<slug:package_slug>/<version:version>', methods=['POST'])
 def route_create_version(package_slug, version):
     file = request.files.get('file')
 
@@ -45,34 +49,30 @@ def route_create_version(package_slug, version):
 
     existing = package.versions.filter_by(version=version).first()
 
-    if request.method == 'POST':
-        if existing is not None:
-            raise VersionAlreadyExistsErrorResponse(version, package_slug)
+    if existing is not None:
+        raise VersionAlreadyExistsErrorResponse(version, package_slug)
 
-        if file is None or not file.filename.endswith('.zip'):
-            detail = f"The package must be provided as a .zip file in the request."
-            error = {
-                "code": "file-missing",
-                "title": "Missing File Argument",
-                "detail": detail
-            }
-            return fail(error, 400)
-
-    data = request.get_json() or {}
-
-    if 'version' in data:
+    if file is None or not file.filename.endswith('.zip'):
+        detail = f"The package must be provided as a .zip file in the request."
         error = {
-            "code": "invalid-argument",
-            "title": "Version Cannot Change",
-            "detail": "Package versions may not change their version strings."
+            "code": "file-missing",
+            "title": "Missing File Argument",
+            "detail": detail
         }
         return fail(error, 400)
 
-    version = existing or PackageVersion(version=version, package=package, **data)
+    try:
+        data = json.loads(request.form.get('data'))
+        version = existing or PackageVersion(version=version, package=package, **data)
+    except Exception as e:
+        detail = "'data' must be provided with request files; it must be valid JSON."
+        raise InvalidArgumentResponse(code="invalid-argument",
+                                      title="'data' file was missing or invalid",
+                                      detail=detail)
 
     if file is not None:
         version.cubby().store(file=file)
 
-    version.update(**data)
+    version.save(commit=True)
 
     return package_version_schema.jsonify(version)

@@ -77,6 +77,8 @@ class CRUDMixin(object):
         db.session.add(self)
         if commit:
             db.session.commit()
+        else:
+            db.session.flush()
         return self
 
     @classmethod

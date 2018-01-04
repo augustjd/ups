@@ -85,3 +85,4 @@ class PackageWithVersionsSchema(ma.Schema):
 
 
 package_with_versions_schema = PackageWithVersionsSchema()
+packages_with_versions_schema = PackageWithVersionsSchema(many=True)

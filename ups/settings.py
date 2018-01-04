@@ -31,6 +31,13 @@ class DevConfig(Config):
     }
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
+    #
+    # STORAGE
+    #
+    STORAGE_DEFAULT_SERVICE = 's3'
+    STORAGE_DEFAULT_BUCKET = 'abcd12390123-ups-development'
+    STORAGE_DEFAULT_LOCATION = 'us-west-1'
+
 
 class TestConfig(DevConfig):
     ENV = 'test'
