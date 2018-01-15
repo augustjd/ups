@@ -15,7 +15,7 @@ class TestSuites:
         s = Suite(name='Everything', packages=[p1, p2])
         s.save()
 
-        assert s.packages == [p1, p2]
+        assert set(s.packages) == set([p1, p2])
 
     def test_suites_have_packages_once(self, app):
         """A package can either belong to a suite or not; it cannot belong twice."""
@@ -65,4 +65,4 @@ class TestSuites:
         s.save()
 
         packages = Package.query.filter(Package.suites.contains(s)).all()
-        assert packages == [p1, p2]
+        assert set(packages) == set([p1, p2])
