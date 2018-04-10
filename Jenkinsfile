@@ -2,19 +2,25 @@ pipeline {
     agent any
 
     stages {
-        stage('Build') {
+        stage('Checkout') {
             steps {
-                echo 'Building..'
+                git url: 'https://github.com/augustjd/ups'
+            }
+        }
+        stage('Install Requirements') {
+            steps {
+                sh 'python3.6 -mvenv env'
+                sh 'env/bin/pip3.6 install -r requirements.txt'
             }
         }
         stage('Test') {
             steps {
-                echo 'Testing..'
+                sh 'env/bin/pytest --junitxml build/results.xml'
             }
         }
-        stage('Deploy') {
+        stage('Collect Test Results') {
             steps {
-                echo 'Deploying....'
+                junit 'build/results.xml'
             }
         }
     }
