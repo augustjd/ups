@@ -27,7 +27,7 @@ Flask-SQLAlchemy==2.3.2
 idna==2.6
 isodate==0.6.0
 itsdangerous==0.24
-Jinja2==2.10
+Jinja2==2.11.3
 jmespath==0.9.3
 jsondiff==1.1.1
 jsonpickle==0.9.5
